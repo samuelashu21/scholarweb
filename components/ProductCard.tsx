@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import StarRating from './StarRating';
-import api from '@/lib/api';
+import api from '@/lib/api'; 
 
 export interface Product {
   _id: string;
@@ -56,8 +56,20 @@ export default function ProductCard({ product }: ProductCardProps) {
       stock: product.stock,
     });
   };
+ 
+const isValidUrl = (str: string) => {
+  try {
+    return new URL(str).protocol.startsWith('http');
+  } catch {
+    return false;
+  }
+};
 
-  const imageUrl = product.images[0] || 'https://via.placeholder.com/300x300?text=No+Image';
+const imageUrl =
+  product.images?.length && isValidUrl(product.images[0])
+    ? product.images[0]
+    : '/placeholder.png';
+
 
   return (
     <Link href={`/products/${product._id}`}>
@@ -97,7 +109,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             >
               {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
             </button>
-          </div>
+          </div> 
         </div>
       </div>
     </Link>

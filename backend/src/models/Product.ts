@@ -25,7 +25,7 @@ const ratingSchema = new Schema<IRating>({
   rating: { type: Number, required: true, min: 1, max: 5 },
   comment: { type: String, default: '' },
 });
-
+ 
 const productSchema = new Schema<IProduct>(
   {
     name: { type: String, required: true },

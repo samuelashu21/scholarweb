@@ -3,7 +3,7 @@ import Product from '../models/Product';
 import { AuthRequest } from '../middleware/auth';
 
 export const getProducts = async (req: Request, res: Response): Promise<void> => {
-  try {
+  try { 
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 12;
     const skip = (page - 1) * limit;
@@ -52,11 +52,25 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 export const createProduct = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { name, description, price, images, category, stock } = req.body;
+
+    const isValidUrl = (str: string) => {
+  try {
+    new URL(str);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const validImages = (images || []).filter((img: string) =>
+  isValidUrl(img)
+);
+
     const product = await Product.create({
       name,
       description,
       price,
-      images: images || [],
+      images: validImages,
       category,
       seller: req.user?._id,
       stock: stock || 0,
