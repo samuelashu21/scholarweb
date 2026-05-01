@@ -2,6 +2,29 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Backend
+
+The backend is an Express + TypeScript API located in the `backend/` directory.
+
+**Development** (runs TypeScript directly via `ts-node`, no build step needed):
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+**Production** (compile TypeScript first, then run the compiled JS):
+```bash
+cd backend
+npm install
+npm run build   # compiles src/ → dist/
+npm start       # runs node dist/server.js
+```
+
+> ⚠️ Do not run `node dist/server.ts` — Node.js cannot execute TypeScript files. Always compile first with `npm run build`, or use `npm run dev` for development.
+
+### Frontend
+
 First, run the development server:
 
 ```bash
