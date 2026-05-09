@@ -162,25 +162,25 @@ CORS_ORIGIN=http://localhost:3000
 
 ```bash
 # Frontend
-cd /home/runner/work/scholarweb/scholarweb
+cd <project-root>
 npm ci
 
 # Backend
-cd /home/runner/work/scholarweb/scholarweb/backend
+cd <project-root>/backend
 npm ci
 ```
 
 ### 2) Start backend
 
 ```bash
-cd /home/runner/work/scholarweb/scholarweb/backend
+cd <project-root>/backend
 npm run dev
 ```
 
 ### 3) Start frontend (in a separate terminal)
 
 ```bash
-cd /home/runner/work/scholarweb/scholarweb
+cd <project-root>
 npm run dev
 ```
 
@@ -191,7 +191,7 @@ Open: `http://localhost:3000`
 ### Frontend
 
 ```bash
-cd /home/runner/work/scholarweb/scholarweb
+cd <project-root>
 npm run lint
 npm run build
 ```
@@ -199,7 +199,7 @@ npm run build
 ### Backend
 
 ```bash
-cd /home/runner/work/scholarweb/scholarweb/backend
+cd <project-root>/backend
 npm run build
 ```
 
