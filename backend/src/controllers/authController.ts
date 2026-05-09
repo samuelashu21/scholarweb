@@ -67,23 +67,37 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
-export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const user = await User.findById(req.user?._id);
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
     }
+
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.avatar = req.body.avatar || user.avatar;
-    if (req.body.address) {
-      user.address = { ...user.address, ...req.body.address };
+
+    // ✅ CLOUDINARY IMAGE
+    if (req.file) {
+      user.avatar = req.file.path;
     }
+
+    if (req.body.address) {
+      const address =
+        typeof req.body.address === 'string'
+          ? JSON.parse(req.body.address)
+          : req.body.address;
+
+      user.address = { ...user.address, ...address };
+    }
+
     if (req.body.password) {
       user.password = await bcrypt.hash(req.body.password, 10);
     }
+
     const updated = await user.save();
+
     res.json({
       _id: updated._id,
       name: updated.name,

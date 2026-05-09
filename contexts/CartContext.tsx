@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from 'react';
 
 export interface CartItem {
   _id: string;
@@ -19,46 +25,64 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  mounted: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-    if (typeof window === 'undefined') return [];
-    const stored = localStorage.getItem('cart');
-    return stored ? JSON.parse(stored) : [];
-  });
+export const CartProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [mounted, setMounted] = useState(false);
 
-  const saveCart = (items: CartItem[]) => {
-    setCartItems(items);
-    localStorage.setItem('cart', JSON.stringify(items));
-  };
+  // Load cart AFTER hydration
+  useEffect(() => {
+    const stored = localStorage.getItem('cart');
+
+    if (stored) {
+      setCartItems(JSON.parse(stored));
+    }
+
+    setMounted(true);
+  }, []);
+
+  // Save cart whenever it changes
+  useEffect(() => { 
+    if (mounted) {
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+    }
+  }, [cartItems, mounted]);
 
   const addToCart = (item: CartItem) => {
     setCartItems((prev) => {
       const existing = prev.find((i) => i._id === item._id);
-      let updated: CartItem[];
+
       if (existing) {
-        updated = prev.map((i) =>
+        return prev.map((i) =>
           i._id === item._id
-            ? { ...i, qty: Math.min(i.qty + item.qty, item.stock) }
+            ? {
+                ...i,
+                qty: Math.min(i.qty + item.qty, item.stock),
+              }
             : i
         );
-      } else {
-        updated = [...prev, item];
       }
-      localStorage.setItem('cart', JSON.stringify(updated));
-      return updated;
+
+      return [...prev, item];
     });
   };
 
   const removeFromCart = (id: string) => {
-    saveCart(cartItems.filter((i) => i._id !== id));
+    setCartItems((prev) => prev.filter((i) => i._id !== id));
   };
 
   const updateQty = (id: string, qty: number) => {
-    saveCart(cartItems.map((i) => (i._id === id ? { ...i, qty } : i)));
+    setCartItems((prev) =>
+      prev.map((i) => (i._id === id ? { ...i, qty } : i))
+    );
   };
 
   const clearCart = () => {
@@ -67,11 +91,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const totalItems = cartItems.reduce((acc, i) => acc + i.qty, 0);
-  const totalPrice = cartItems.reduce((acc, i) => acc + i.price * i.qty, 0);
+
+  const totalPrice = cartItems.reduce(
+    (acc, i) => acc + i.price * i.qty,
+    0
+  );
 
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, updateQty, clearCart, totalItems, totalPrice }}
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        updateQty,
+        clearCart,
+        totalItems,
+        totalPrice,
+        mounted,
+      }}
     >
       {children}
     </CartContext.Provider>
@@ -80,6 +117,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
 export const useCart = (): CartContextType => {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error('useCart must be used within CartProvider');
+
+  if (!ctx) {
+    throw new Error('useCart must be used within CartProvider');
+  }
+
   return ctx;
 };
