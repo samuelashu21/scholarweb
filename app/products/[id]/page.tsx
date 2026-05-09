@@ -40,10 +40,6 @@ export default function ProductDetailPage() {
   const [qty, setQty] = useState(1);
   const [liked, setLiked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewComment, setReviewComment] = useState('');
-  const [reviewLoading, setReviewLoading] = useState(false);
-  const [reviewError, setReviewError] = useState('');
   const [addedToCart, setAddedToCart] = useState(false);
 
   useEffect(() => {
@@ -97,36 +93,6 @@ export default function ProductDetailPage() {
 
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
-  };
-
-  const handleReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
-    setReviewLoading(true);
-    setReviewError('');
-
-    try {
-      await api.post(`/api/products/${id}/reviews`, {
-        rating: reviewRating,
-        comment: reviewComment,
-      });
-
-      const res = await api.get(`/api/products/${id}`);
-      setProduct(res.data);
-      setReviewComment('');
-      setReviewRating(5);
-    } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string } } };
-      setReviewError(
-        axiosErr.response?.data?.message || 'Failed to submit review'
-      );
-    } finally {
-      setReviewLoading(false);
-    }
   };
 
   if (loading) {
